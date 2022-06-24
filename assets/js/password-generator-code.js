@@ -7,6 +7,7 @@
     const symbolsEl = document.getElementById('symbols');
     const generateEl = document.getElementById('generate');
     const clipboardEl = document.getElementById('clipboard');
+    const notification = document.getElementById('notification');
     const notificationBtn = document.getElementById('notification-btn');
     const notificationText = document.getElementById('notification-text');
 
@@ -18,28 +19,17 @@
     };
 
     clipboardEl.addEventListener('click', () => {
-        const textarea = document.createElement('textarea');
-        const password = resultEl.innerText;
+        let password = resultEl.innerText;
 
         if (!password) { return }
 
-        textarea.value = password
-        document.body.appendChild(textarea)
-        textarea.select()
-        document.execCommand('copy')
-        textarea.remove()
+        navigator.clipboard.writeText(password);
 
-        notificationText.innerHTML = 'Senha copiada.';
-
-        notification.classList.add('active');
-
-        notificationBtn.addEventListener('click', (e) => {
-            notification.classList.remove('active')
-        });
+        toggleNotification('Senha copiada.');
     })
 
     generateEl.addEventListener('click', () => {
-        const length = +lengthEl.value;
+        const length = lengthEl.value;
         const hasLower = lowercaseEl.checked;
         const hasUpper = uppercaseEl.checked;
         const hasNumber = numbersEl.checked;
@@ -50,13 +40,7 @@
         if (length <= 64) {
             resultEl.innerText = generatePassword(hasLower, hasUpper, hasNumber, hasSymbol, length)
         } else {
-            notificationText.innerHTML = 'Limite máximo de 64 carácteres excedido.';
-
-            notification.classList.add('active');
-
-            notificationBtn.addEventListener('click', (e) => {
-                notification.classList.remove('active')
-            });
+            toggleNotification('Limite máximo de 64 carácteres excedido.');
         }
     })
 
@@ -76,9 +60,17 @@
             })
         }
 
-        const finalPassword = generatedPassword.slice(0, length);
+        return generatedPassword
+    }
 
-        return finalPassword
+    function toggleNotification(message) {
+        notificationText.innerHTML = message;
+
+        notification.classList.add('active');
+
+        notificationBtn.addEventListener('click', () => {
+            notification.classList.remove('active')
+        });
     }
 
     function getRandomLower() {
